@@ -89,6 +89,7 @@ export default function MemoEditor() {
   const [isEditMode, setIsEditMode] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isPreviewMode, setIsPreviewMode] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const [memoData, setMemoData] = useState<MemoData>(initialMemoData)
   const [sections, setSections] = useState<Section[]>(initialSections)
 
@@ -156,7 +157,7 @@ export default function MemoEditor() {
         {/* Scrollable content area */}
         <div className="flex-1 overflow-y-auto">
           {/* Memo Header - spans all columns */}
-          <div className="w-full px-8 py-6 bg-white border-b border-slate-200">
+          <div className="w-full px-8 py-6">
             <div className="max-w-full mx-auto">
               <MemoHeader memoTitle="Memo" company="XYZ Corp" date="October 4, 2024" author="Jane Doe, CEO" />
             </div>
@@ -190,7 +191,7 @@ export default function MemoEditor() {
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Navigation Sidebar */}
-      <Sidebar />
+      {sidebarOpen && <Sidebar />}
 
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-y-auto">
@@ -200,10 +201,12 @@ export default function MemoEditor() {
           onModeToggle={handlePreviewToggle}
           onSaveDraft={handleSaveDraft}
           isSaving={isSaving}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
 
         {/* Memo Header - spans all columns */}
-        <div className="w-full px-8 py-6 bg-white border-b border-slate-200 flex-shrink-0">
+        <div className="w-full px-8 py-6 flex-shrink-0">
           <div className="max-w-full mx-auto">
             <MemoHeader memoTitle="Memo" company="XYZ Corp" date="October 4, 2024" author="Jane Doe, CEO" />
           </div>

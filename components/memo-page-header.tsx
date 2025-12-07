@@ -32,12 +32,12 @@ export default function MemoPageHeader({
       <div className="flex items-center justify-between">
         {/* Left: Sidebar toggle and title */}
         <div className="flex items-center gap-6">
-          <button
+        <button
             onClick={onToggleSidebar}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-600 hover:text-slate-900"
+            className="p-2.5 hover:bg-gradient-to-br hover:from-slate-100 hover:to-slate-50 rounded-xl transition-all duration-300 text-slate-500 hover:text-slate-900 hover:shadow-md border border-transparent hover:border-slate-200 group"
             title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
-            <ChevronLeft className={`w-6 h-6 transition-transform ${sidebarOpen ? "rotate-180" : ""}`} />
+            <ChevronLeft className={`w-5 h-5 transition-all duration-300 ${sidebarOpen ? "rotate-180" : ""} group-hover:scale-110`} />
           </button>
 
           <div>
