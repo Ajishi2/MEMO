@@ -91,56 +91,27 @@ function EditableSectionHeader({
   )
 }
 
-const initialSections: Section[] = [
-  {
-    id: "1",
-    title: "Problem Statement",
-    blocks: [
-      {
-        id: "1-1",
-        type: "text",
-        data: {
-          content:
-            "Urban households face rising energy costs and unreliable power grids. Existing renewable energy solutions are expensive and lack efficiency in urban settings.",
-        },
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "Section 1",
-    blocks: [
-      {
-        id: "2-1",
-        type: "text",
-        data: {
-          content:
-            "GreenTech Solutions is a sustainability-focused company developing solar-powered energy storage solutions for urban households. Our mission is to make renewable energy affordable and accessible for all. We seek $2M in funding to scale production, expand marketing efforts, and increase our market presence.",
-        },
-      },
-    ],
-  },
-]
 
 interface MemoContentProps {
   isEditMode: boolean
+  sections: Section[]
+  onSectionsChange: (sections: Section[]) => void
 }
 
-export default function MemoContent({ isEditMode }: MemoContentProps) {
-  const [sections, setSections] = useState(initialSections)
+export default function MemoContent({ isEditMode, sections, onSectionsChange }: MemoContentProps) {
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null)
 
   const addSection = () => {
     const newSection = {
       id: `section-${Date.now()}`,
-      title: `Section ${sections.length}`,
+      title: `Section ${sections.length + 1}`,
       blocks: [],
     }
-    setSections([...sections, newSection])
+    onSectionsChange([...sections, newSection])
   }
 
   const addBlock = (sectionId: string, type: BlockItem["type"]) => {
-    setSections(
+    onSectionsChange(
       sections.map((s) =>
         s.id === sectionId
           ? {
@@ -160,7 +131,7 @@ export default function MemoContent({ isEditMode }: MemoContentProps) {
   }
 
   const deleteBlock = (sectionId: string, blockId: string) => {
-    setSections(
+    onSectionsChange(
       sections.map((s) => (s.id === sectionId ? { ...s, blocks: s.blocks.filter((b) => b.id !== blockId) } : s)),
     )
   }
@@ -190,7 +161,7 @@ export default function MemoContent({ isEditMode }: MemoContentProps) {
             {...commonProps}
             data={block.data}
             onUpdate={(content: string) => {
-              setSections(
+              onSectionsChange(
                 sections.map((s) =>
                   s.id === sectionId
                     ? {
@@ -212,7 +183,7 @@ export default function MemoContent({ isEditMode }: MemoContentProps) {
             {...commonProps}
             data={block.data}
             onUpdate={(tableData: string[][]) => {
-              setSections(
+              onSectionsChange(
                 sections.map((s) =>
                   s.id === sectionId
                     ? {
@@ -235,7 +206,7 @@ export default function MemoContent({ isEditMode }: MemoContentProps) {
   }
 
   const updateSectionTitle = (sectionId: string, newTitle: string) => {
-    setSections(
+    onSectionsChange(
       sections.map((s) => (s.id === sectionId ? { ...s, title: newTitle } : s))
     )
   }

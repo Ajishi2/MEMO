@@ -6,6 +6,50 @@ import TopBar from "./top-bar"
 import MemoContent from "./memo-content"
 import LeftSidebar from "./left-sidebar"
 import RightSidebar from "./right-sidebar"
+import { ArrowLeft } from "lucide-react"
+
+interface Section {
+  id: string
+  title: string
+  blocks: BlockItem[]
+}
+
+interface BlockItem {
+  id: string
+  type: "text" | "chart" | "table" | "timeline" | "bar-chart"
+  data?: any
+}
+
+const initialSections: Section[] = [
+  {
+    id: "1",
+    title: "Problem Statement",
+    blocks: [
+      {
+        id: "1-1",
+        type: "text",
+        data: {
+          content:
+            "Urban households face rising energy costs and unreliable power grids. Existing renewable energy solutions are expensive and lack efficiency in urban settings.",
+        },
+      },
+    ],
+  },
+  {
+    id: "2",
+    title: "Section 1",
+    blocks: [
+      {
+        id: "2-1",
+        type: "text",
+        data: {
+          content:
+            "GreenTech Solutions is a sustainability-focused company developing solar-powered energy storage solutions for urban households. Our mission is to make renewable energy affordable and accessible for all. We seek $2M in funding to scale production, expand marketing efforts, and increase our market presence.",
+        },
+      },
+    ],
+  },
+]
 
 interface MemoData {
   leftSidebar: {
@@ -45,6 +89,7 @@ export default function MemoEditor() {
   const [isSaving, setIsSaving] = useState(false)
   const [isPreviewMode, setIsPreviewMode] = useState(false)
   const [memoData, setMemoData] = useState<MemoData>(initialMemoData)
+  const [sections, setSections] = useState<Section[]>(initialSections)
 
   const handleSaveDraft = () => {
     setIsSaving(true)
@@ -68,8 +113,71 @@ export default function MemoEditor() {
     }))
   }
 
+  const handlePreviewToggle = () => {
+    if (isEditMode) {
+      setIsPreviewMode(true)
+      setIsEditMode(false)
+    } else {
+      setIsPreviewMode(false)
+      setIsEditMode(true)
+    }
+  }
+
+  const handleBackFromPreview = () => {
+    setIsPreviewMode(false)
+    setIsEditMode(true)
+  }
+
+  // Preview mode: full screen memo with elegant back button
+  if (isPreviewMode) {
+    return (
+      <div className="h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+        {/* Minimal elegant top bar */}
+        <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-8 py-5 flex items-center justify-between shadow-xl border-b border-slate-700/50">
+          <button
+            onClick={handleBackFromPreview}
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 font-medium shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Edit
+          </button>
+          
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+              Preview Mode
+            </h1>
+            <p className="text-sm text-slate-400 font-medium">
+              Full memo presentation view
+            </p>
+          </div>
+        </div>
+
+        {/* Full memo content with elegant spacing */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Left Sidebar - Key Metrics */}
+          <div className="w-72 bg-white border-r border-slate-200/80 overflow-y-auto shadow-lg">
+            <LeftSidebar isEditMode={false} data={memoData.leftSidebar} onUpdate={updateLeftSidebar} />
+          </div>
+
+          {/* Main Content Area */}
+          <div className="flex-1 overflow-auto bg-white">
+            <div className="max-w-5xl mx-auto">
+              <MemoContent isEditMode={false} sections={sections} onSectionsChange={setSections} />
+            </div>
+          </div>
+
+          {/* Right Sidebar - Highlights */}
+          <div className="w-72 bg-gradient-to-b from-slate-50 to-white border-l border-slate-200/80 overflow-y-auto shadow-lg">
+            <RightSidebar isEditMode={false} data={memoData.rightSidebar} onUpdate={updateRightSidebar} />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Normal mode: with sidebar and full top bar
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Navigation Sidebar */}
       <Sidebar />
 
@@ -78,29 +186,30 @@ export default function MemoEditor() {
         {/* Top Bar */}
         <TopBar
           isEditMode={isEditMode}
-          onModeToggle={() => setIsEditMode(!isEditMode)}
+          onModeToggle={handlePreviewToggle}
           onSaveDraft={handleSaveDraft}
           isSaving={isSaving}
         />
 
-        {/* Three-column layout: Left sidebar | Main content | Right sidebar */}
+        {/* Three-column layout with elegant borders and shadows */}
         <div className="flex flex-1 overflow-hidden">
           {/* Left Sidebar - Key Metrics */}
-          <div className="w-56 bg-white border-r border-slate-200 overflow-y-auto">
+          <div className="w-72 bg-white border-r border-slate-200/80 overflow-y-auto shadow-lg">
             <LeftSidebar isEditMode={isEditMode} data={memoData.leftSidebar} onUpdate={updateLeftSidebar} />
           </div>
 
           {/* Main Content Area */}
-          <div className="flex-1 overflow-auto">
-            <MemoContent isEditMode={isEditMode} />
+          <div className="flex-1 overflow-auto bg-white">
+            <div className="max-w-5xl mx-auto">
+              <MemoContent isEditMode={isEditMode} sections={sections} onSectionsChange={setSections} />
+            </div>
           </div>
 
           {/* Right Sidebar - Highlights */}
-          <div className="w-48 bg-slate-50 border-l border-slate-200 overflow-y-auto p-4">
+          <div className="w-72 bg-gradient-to-b from-slate-50 to-white border-l border-slate-200/80 overflow-y-auto shadow-lg">
             <RightSidebar isEditMode={isEditMode} data={memoData.rightSidebar} onUpdate={updateRightSidebar} />
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  )}

@@ -12,6 +12,8 @@ interface EditableWrapperProps {
   isDragging?: boolean
   onDragStart?: (id: string) => void
   onDragEnd?: () => void
+  hideSelectionRing?: boolean
+  contentEditableRef?: React.RefObject<HTMLDivElement | null>
   children: React.ReactNode
 }
 
@@ -52,22 +54,46 @@ export default function EditableWrapper({
   isDragging,
   onDragStart,
   onDragEnd,
+  hideSelectionRing = false,
+  contentEditableRef: externalContentEditableRef,
   children,
 }: EditableWrapperProps) {
   const { selectedId, setSelected } = useEditorSelection()
   const wrapperRef = useRef<HTMLDivElement>(null)
-  const contentEditableRef = useRef<HTMLDivElement>(null)
+  const internalContentEditableRef = useRef<HTMLDivElement>(null)
+  const contentEditableRef = externalContentEditableRef || internalContentEditableRef
   const isSelected = isEditMode && selectedId === id
+  const [toolbarPosition, setToolbarPosition] = useState({ top: 0, left: 0 })
+
+  // Update toolbar position when selection changes
+  useEffect(() => {
+    if (isSelected && wrapperRef.current) {
+      // Use requestAnimationFrame to ensure DOM is updated before calculating position
+      requestAnimationFrame(() => {
+        if (wrapperRef.current) {
+          const rect = wrapperRef.current.getBoundingClientRect()
+          setToolbarPosition({
+            top: rect.top - 80,
+            left: rect.left,
+          })
+        }
+      })
+    }
+  }, [isSelected])
 
 
   const handleClick = (e: React.MouseEvent) => {
     if (!isEditMode) return
     // Don't stop propagation here - let it bubble so clicks on children work
-    
+
     if (wrapperRef.current) {
       const rect = wrapperRef.current.getBoundingClientRect()
       setSelected(id, {
         top: rect.top - 70,
+        left: rect.left,
+      })
+      setToolbarPosition({
+        top: rect.top - 80,
         left: rect.left,
       })
     }
@@ -86,6 +112,10 @@ export default function EditableWrapper({
           const rect = wrapperRef.current.getBoundingClientRect()
           setSelected(id, {
             top: rect.top - 70,
+            left: rect.left,
+          })
+          setToolbarPosition({
+            top: rect.top - 80,
             left: rect.left,
           })
         }
@@ -117,11 +147,14 @@ export default function EditableWrapper({
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [isEditMode, setSelected, id])
 
+  // If using external ref, we don't need to find the element
+  // The getContentEditable function in EditingToolbar will find it via querySelector
+
   return (
     <div
       ref={wrapperRef}
       className={`relative group transition-all ${isDragging ? "opacity-50" : ""} ${
-        isSelected ? "ring-2 ring-blue-500 rounded-lg" : ""
+        isSelected && !hideSelectionRing ? "ring-2 ring-blue-500 rounded-lg" : ""
       }`}
       onClick={handleClick}
       draggable={isEditMode}
@@ -130,10 +163,11 @@ export default function EditableWrapper({
     >
       {isSelected && isEditMode && (
         <div
-          className="absolute -top-16 left-0 z-50"
+          className="fixed z-[9999] text-slate-900"
           data-editor-toolbar
           style={{
-            transform: "translateY(-100%)",
+            top: `${toolbarPosition.top}px`,
+            left: `${toolbarPosition.left}px`,
           }}
         >
           <EditingToolbar
@@ -146,9 +180,13 @@ export default function EditableWrapper({
         </div>
       )}
 
-      <div ref={contentEditableRef}>
-        {children}
-      </div>
+      {externalContentEditableRef ? (
+        children
+      ) : (
+        <div ref={internalContentEditableRef}>
+          {children}
+          </div>
+        )}
     </div>
   )
 }

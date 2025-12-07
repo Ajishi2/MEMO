@@ -13,38 +13,38 @@ const navItems = [
 
 export default function Sidebar() {
   return (
-    <div className="w-64 bg-white border-r border-slate-200 flex flex-col p-6 space-y-8">
+    <div className="w-64 bg-gradient-to-b from-slate-900 to-slate-800 flex flex-col p-6 space-y-8 shadow-2xl">
       {/* Logo */}
-      <div className="space-y-1">
-        <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-lg">M</span>
+      <div className="space-y-2">
+        <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+          <span className="text-white font-bold text-xl">M</span>
         </div>
-        <h2 className="text-sm font-semibold text-slate-900">Memo Pro</h2>
+        <h2 className="text-base font-bold text-white tracking-tight">Memo Pro</h2>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-2">
+      <nav className="flex-1 space-y-1.5">
         {navItems.map((item) => (
           <button
             key={item.label}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-all duration-200 hover:translate-x-1 group"
           >
-            <item.icon className="w-4 h-4" />
-            <span>{item.label}</span>
+            <item.icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            <span className="font-medium">{item.label}</span>
           </button>
         ))}
       </nav>
 
       {/* User Section */}
-      <div className="space-y-3 border-t border-slate-200 pt-4">
+      <div className="space-y-3 border-t border-slate-700/50 pt-6">
         <div className="flex items-center gap-3 px-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full" />
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full shadow-lg shadow-blue-500/30" />
           <div className="text-sm">
-            <p className="font-medium text-slate-900">John Doe</p>
-            <p className="text-xs text-slate-500">CEO</p>
+            <p className="font-semibold text-white">John Doe</p>
+            <p className="text-xs text-slate-400">CEO</p>
           </div>
         </div>
-        <Button variant="ghost" className="w-full justify-start text-slate-600 hover:bg-slate-100 h-9">
+        <Button variant="ghost" className="w-full justify-start text-slate-300 hover:bg-white/10 hover:text-white h-10 rounded-xl transition-all">
           <LogOut className="w-4 h-4 mr-2" />
           Logout
         </Button>
