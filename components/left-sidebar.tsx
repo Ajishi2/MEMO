@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useEffect, useState } from "react"
-import { Plus } from "lucide-react"
+import { Plus, Sparkles } from "lucide-react"
 import EditableWrapper from "./editable-wrapper"
 
 interface LeftSidebarProps {
@@ -128,7 +128,7 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
   }, [])
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="pt-8 px-6 pb-6 space-y-6">
       {/* Problem Statement */}
       <div className="space-y-3">
         <EditableWrapper
@@ -144,11 +144,23 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             }
           }}
         >
-          <h3
-            ref={problemStatementHeadingRef}
-            contentEditable={isEditMode}
-            suppressContentEditableWarning
-            className="text-sm font-bold bg-slate-900 text-white px-3 py-2 rounded outline-none focus:ring-2 focus:ring-blue-400"
+          <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-5 py-3 rounded-xl shadow-lg border border-slate-700/50 overflow-hidden group">
+            {/* Animated background accent */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            {/* Decorative corner accent */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/20 to-transparent rounded-bl-full blur-2xl" />
+            
+            <div className="relative flex items-center gap-2">
+              <h3
+                ref={problemStatementHeadingRef}
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                className={`text-sm font-bold outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 rounded-lg px-2 py-1 -mx-2 -my-1 flex-1 ${
+                  isEditMode 
+                    ? "bg-white/5 focus:bg-white/10 transition-all" 
+                    : "bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent"
+                }`}
             onBlur={(e) => {
               if (isEditMode && e.currentTarget) {
                 setHeadings(prev => ({
@@ -163,8 +175,11 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
                 e.currentTarget.blur()
               }
             }}
-          />
+              />
+            </div>
+          </div>
         </EditableWrapper>
+        <div className="bg-gradient-to-br from-white to-slate-50 p-5 rounded-xl border border-slate-200/80 shadow-lg hover:shadow-xl transition-shadow duration-300">
         <EditableWrapper
           id="problem-statement"
           isEditMode={isEditMode}
@@ -179,8 +194,10 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             ref={problemStatementRef}
             contentEditable={isEditMode}
             suppressContentEditableWarning
-            className={`text-xs text-slate-600 leading-relaxed min-h-[60px] p-2 ${
-              isEditMode ? "border border-dashed border-slate-300 rounded" : ""
+            className={`text-sm text-slate-700 leading-relaxed min-h-[60px] p-2 ${
+              isEditMode 
+                ? "border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:bg-white/50 transition-all outline-none rounded-lg" 
+                : ""
             }`}
             onBlur={(e) => {
               if (isEditMode && e.currentTarget) {
@@ -194,6 +211,7 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             }}
           />
         </EditableWrapper>
+        </div>
       </div>
 
       {/* Solution */}
@@ -211,27 +229,38 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             }
           }}
         >
-          <h3
-            ref={solutionHeadingRef}
-            contentEditable={isEditMode}
-            suppressContentEditableWarning
-            className="text-sm font-bold bg-slate-900 text-white px-3 py-2 rounded outline-none focus:ring-2 focus:ring-blue-400"
-            onBlur={(e) => {
-              if (isEditMode && e.currentTarget) {
-                setHeadings(prev => ({
-                  ...prev,
-                  solution: e.currentTarget?.textContent || prev.solution
-                }))
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                e.currentTarget.blur()
-              }
-            }}
-          />
+          <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-5 py-3 rounded-xl shadow-lg border border-slate-700/50 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/20 to-transparent rounded-bl-full blur-2xl" />
+            <div className="relative flex items-center gap-2">
+              <h3
+                ref={solutionHeadingRef}
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                className={`text-sm font-bold outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 rounded-lg px-2 py-1 -mx-2 -my-1 flex-1 ${
+                  isEditMode 
+                    ? "bg-white/5 focus:bg-white/10 transition-all" 
+                    : "bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent"
+                }`}
+                onBlur={(e) => {
+                  if (isEditMode && e.currentTarget) {
+                    setHeadings(prev => ({
+                      ...prev,
+                      solution: e.currentTarget?.textContent || prev.solution
+                    }))
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    e.currentTarget.blur()
+                  }
+                }}
+              />
+            </div>
+          </div>
         </EditableWrapper>
+        <div className="bg-gradient-to-br from-white to-slate-50 p-5 rounded-xl border border-slate-200/80 shadow-lg hover:shadow-xl transition-shadow duration-300">
         <EditableWrapper
           id="solution"
           isEditMode={isEditMode}
@@ -246,8 +275,10 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             ref={solutionRef}
             contentEditable={isEditMode}
             suppressContentEditableWarning
-            className={`text-xs text-slate-600 leading-relaxed min-h-[60px] p-2 ${
-              isEditMode ? "border border-dashed border-slate-300 rounded" : ""
+            className={`text-sm text-slate-700 leading-relaxed min-h-[60px] p-2 ${
+              isEditMode 
+                ? "border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:bg-white/50 transition-all outline-none rounded-lg" 
+                : ""
             }`}
             onBlur={(e) => {
               if (isEditMode && e.currentTarget) {
@@ -261,6 +292,7 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             }}
           />
         </EditableWrapper>
+        </div>
       </div>
 
       {/* Market Opportunity - Bar Chart */}
@@ -278,28 +310,38 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             }
           }}
         >
-          <h3
-            ref={marketOpportunityHeadingRef}
-            contentEditable={isEditMode}
-            suppressContentEditableWarning
-            className="text-sm font-bold bg-slate-900 text-white px-3 py-2 rounded outline-none focus:ring-2 focus:ring-blue-400"
-            onBlur={(e) => {
-              if (isEditMode && e.currentTarget) {
-                setHeadings(prev => ({
-                  ...prev,
-                  marketOpportunity: e.currentTarget?.textContent || prev.marketOpportunity
-                }))
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                e.currentTarget.blur()
-              }
-            }}
-          />
+          <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-5 py-3 rounded-xl shadow-lg border border-slate-700/50 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/20 to-transparent rounded-bl-full blur-2xl" />
+            <div className="relative flex items-center gap-2">
+              <h3
+                ref={marketOpportunityHeadingRef}
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                className={`text-sm font-bold outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 rounded-lg px-2 py-1 -mx-2 -my-1 flex-1 ${
+                  isEditMode 
+                    ? "bg-white/5 focus:bg-white/10 transition-all" 
+                    : "bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent"
+                }`}
+                onBlur={(e) => {
+                  if (isEditMode && e.currentTarget) {
+                    setHeadings(prev => ({
+                      ...prev,
+                      marketOpportunity: e.currentTarget?.textContent || prev.marketOpportunity
+                    }))
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    e.currentTarget.blur()
+                  }
+                }}
+              />
+            </div>
+          </div>
         </EditableWrapper>
-        <div className="bg-slate-50 p-4 rounded-lg">
+        <div className="bg-gradient-to-br from-white to-slate-50 p-5 rounded-xl border border-slate-200/80 shadow-lg hover:shadow-xl transition-shadow duration-300">
           <div className="flex items-end justify-center gap-2 h-24">
             <div className="w-8 bg-blue-500 rounded" style={{ height: "60%" }}></div>
             <div className="w-8 bg-green-400 rounded" style={{ height: "45%" }}></div>
@@ -320,8 +362,10 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
               ref={marketOpportunityRef}
               contentEditable={isEditMode}
               suppressContentEditableWarning
-              className={`text-xs text-slate-500 text-center mt-2 p-2 ${
-                isEditMode ? "border border-dashed border-slate-300 rounded" : ""
+              className={`text-sm text-slate-700 text-center mt-2 p-2 ${
+                isEditMode 
+                  ? "border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:bg-white/50 transition-all outline-none rounded-lg" 
+                  : ""
               }`}
               onBlur={(e) => {
                 if (isEditMode && e.currentTarget) {
@@ -353,28 +397,38 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             }
           }}
         >
-          <h3
-            ref={targetMarketHeadingRef}
-            contentEditable={isEditMode}
-            suppressContentEditableWarning
-            className="text-sm font-bold bg-slate-900 text-white px-3 py-2 rounded outline-none focus:ring-2 focus:ring-blue-400"
-            onBlur={(e) => {
-              if (isEditMode && e.currentTarget) {
-                setHeadings(prev => ({
-                  ...prev,
-                  targetMarket: e.currentTarget?.textContent || prev.targetMarket
-                }))
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                e.currentTarget.blur()
-              }
-            }}
-          />
+          <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-5 py-3 rounded-xl shadow-lg border border-slate-700/50 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/20 to-transparent rounded-bl-full blur-2xl" />
+            <div className="relative flex items-center gap-2">
+              <h3
+                ref={targetMarketHeadingRef}
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                className={`text-sm font-bold outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 rounded-lg px-2 py-1 -mx-2 -my-1 flex-1 ${
+                  isEditMode 
+                    ? "bg-white/5 focus:bg-white/10 transition-all" 
+                    : "bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent"
+                }`}
+                onBlur={(e) => {
+                  if (isEditMode && e.currentTarget) {
+                    setHeadings(prev => ({
+                      ...prev,
+                      targetMarket: e.currentTarget?.textContent || prev.targetMarket
+                    }))
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    e.currentTarget.blur()
+                  }
+                }}
+              />
+            </div>
+          </div>
         </EditableWrapper>
-        <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center">
+        <div className="bg-gradient-to-br from-white to-slate-50 p-5 rounded-xl border border-slate-200/80 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center">
           <div className="relative w-20 h-20 flex items-center justify-center">
             <svg className="w-full h-full" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="40" fill="none" stroke="#3b82f6" strokeWidth="12" strokeDasharray="62.8 100" />
@@ -419,8 +473,10 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
                   ref={targetMarketValueRef}
                   contentEditable={isEditMode}
                   suppressContentEditableWarning
-                  className={`text-xs font-bold p-1 ${
-                    isEditMode ? "border border-dashed border-slate-300 rounded" : ""
+                  className={`text-sm font-bold text-slate-700 p-1 ${
+                    isEditMode 
+                      ? "border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:bg-white/50 transition-all outline-none rounded-lg" 
+                      : ""
                   }`}
                   onBlur={(e) => {
                     if (isEditMode && e.currentTarget) {
@@ -460,8 +516,10 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
                   ref={targetMarketAmountRef}
                   contentEditable={isEditMode}
                   suppressContentEditableWarning
-                  className={`text-xs text-slate-500 p-1 ${
-                    isEditMode ? "border border-dashed border-slate-300 rounded" : ""
+                  className={`text-sm text-slate-700 p-1 ${
+                    isEditMode 
+                      ? "border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:bg-white/50 transition-all outline-none rounded-lg" 
+                      : ""
                   }`}
                   onBlur={(e) => {
                     if (isEditMode && e.currentTarget) {
@@ -502,28 +560,38 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             }
           }}
         >
-          <h3
-            ref={goalHeadingRef}
-            contentEditable={isEditMode}
-            suppressContentEditableWarning
-            className="text-sm font-bold bg-slate-900 text-white px-3 py-2 rounded outline-none focus:ring-2 focus:ring-blue-400"
-            onBlur={(e) => {
-              if (isEditMode && e.currentTarget) {
-                setHeadings(prev => ({
-                  ...prev,
-                  goal: e.currentTarget?.textContent || prev.goal
-                }))
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                e.currentTarget.blur()
-              }
-            }}
-          />
+          <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-5 py-3 rounded-xl shadow-lg border border-slate-700/50 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/20 to-transparent rounded-bl-full blur-2xl" />
+            <div className="relative flex items-center gap-2">
+              <h3
+                ref={goalHeadingRef}
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                className={`text-sm font-bold outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 rounded-lg px-2 py-1 -mx-2 -my-1 flex-1 ${
+                  isEditMode 
+                    ? "bg-white/5 focus:bg-white/10 transition-all" 
+                    : "bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent"
+                }`}
+                onBlur={(e) => {
+                  if (isEditMode && e.currentTarget) {
+                    setHeadings(prev => ({
+                      ...prev,
+                      goal: e.currentTarget?.textContent || prev.goal
+                    }))
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    e.currentTarget.blur()
+                  }
+                }}
+              />
+            </div>
+          </div>
         </EditableWrapper>
-        <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center">
+        <div className="bg-gradient-to-br from-white to-slate-50 p-5 rounded-xl border border-slate-200/80 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center">
           <div className="relative w-20 h-20 flex items-center justify-center">
             <svg className="w-full h-full" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="40" fill="none" stroke="#3b82f6" strokeWidth="12" strokeDasharray="62.8 100" />
@@ -563,8 +631,10 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
                   ref={goalValueRef}
                   contentEditable={isEditMode}
                   suppressContentEditableWarning
-                  className={`text-xs font-bold p-1 ${
-                    isEditMode ? "border border-dashed border-slate-300 rounded" : ""
+                  className={`text-sm font-bold text-slate-700 p-1 ${
+                    isEditMode 
+                      ? "border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:bg-white/50 transition-all outline-none rounded-lg" 
+                      : ""
                   }`}
                   onBlur={(e) => {
                     if (isEditMode && e.currentTarget) {
@@ -592,8 +662,10 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
                   ref={goalAmountRef}
                   contentEditable={isEditMode}
                   suppressContentEditableWarning
-                  className={`text-xs text-slate-500 p-1 ${
-                    isEditMode ? "border border-dashed border-slate-300 rounded" : ""
+                  className={`text-sm text-slate-700 p-1 ${
+                    isEditMode 
+                      ? "border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:bg-white/50 transition-all outline-none rounded-lg" 
+                      : ""
                   }`}
                   onBlur={(e) => {
                     if (isEditMode && e.currentTarget) {
@@ -627,26 +699,36 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             }
           }}
         >
-          <h3
-            ref={fundingRequestHeadingRef}
-            contentEditable={isEditMode}
-            suppressContentEditableWarning
-            className="text-sm font-bold bg-slate-900 text-white px-3 py-2 rounded outline-none focus:ring-2 focus:ring-blue-400"
-            onBlur={(e) => {
-              if (isEditMode && e.currentTarget) {
-                setHeadings(prev => ({
-                  ...prev,
-                  fundingRequest: e.currentTarget?.textContent || prev.fundingRequest
-                }))
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                e.currentTarget.blur()
-              }
-            }}
-          />
+          <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-5 py-3 rounded-xl shadow-lg border border-slate-700/50 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/20 to-transparent rounded-bl-full blur-2xl" />
+            <div className="relative flex items-center gap-2">
+              <h3
+                ref={fundingRequestHeadingRef}
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                className={`text-sm font-bold outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 rounded-lg px-2 py-1 -mx-2 -my-1 flex-1 ${
+                  isEditMode 
+                    ? "bg-white/5 focus:bg-white/10 transition-all" 
+                    : "bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent"
+                }`}
+                onBlur={(e) => {
+                  if (isEditMode && e.currentTarget) {
+                    setHeadings(prev => ({
+                      ...prev,
+                      fundingRequest: e.currentTarget?.textContent || prev.fundingRequest
+                    }))
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    e.currentTarget.blur()
+                  }
+                }}
+              />
+            </div>
+          </div>
         </EditableWrapper>
         <EditableWrapper
           id="amount-sought-heading"
@@ -665,7 +747,11 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             ref={amountSoughtHeadingRef}
             contentEditable={isEditMode}
             suppressContentEditableWarning
-            className="text-xs font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-blue-400 rounded px-1"
+            className={`text-sm font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-lg px-2 py-1 ${
+              isEditMode 
+                ? "border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 focus:bg-white/50 transition-all" 
+                : ""
+            }`}
             onBlur={(e) => {
               if (isEditMode && e.currentTarget) {
                 setHeadings(prev => ({
@@ -682,7 +768,7 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
             }}
           />
         </EditableWrapper>
-        <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center">
+        <div className="bg-gradient-to-br from-white to-slate-50 p-5 rounded-xl border border-slate-200/80 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center">
           <div className="relative w-20 h-20 flex items-center justify-center">
             <svg className="w-full h-full" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="40" fill="none" stroke="#3b82f6" strokeWidth="12" strokeDasharray="62.8 100" />
@@ -722,8 +808,10 @@ export default function LeftSidebar({ isEditMode, data, onUpdate, onAddSection }
                   ref={fundingRequestRef}
                   contentEditable={isEditMode}
                   suppressContentEditableWarning
-                  className={`text-xs font-bold p-1 ${
-                    isEditMode ? "border border-dashed border-slate-300 rounded" : ""
+                  className={`text-sm font-bold text-slate-700 p-1 ${
+                    isEditMode 
+                      ? "border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:bg-white/50 transition-all outline-none rounded-lg" 
+                      : ""
                   }`}
                   onBlur={(e) => {
                     if (isEditMode) {

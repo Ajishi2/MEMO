@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
-import { Plus } from "lucide-react"
+import { Plus, Sparkles } from "lucide-react"
 import TextBlock from "./blocks/text-block"
 import ChartBlock from "./blocks/chart-block"
 import TableBlock from "./blocks/table-block"
@@ -45,48 +45,64 @@ function EditableSectionHeader({
   }, [section.title, isInitialized])
 
   return (
-    <div className="bg-slate-900 text-white px-4 py-3 rounded-lg flex items-center justify-between gap-3">
-      {isEditMode ? (
-        <h2
-          ref={headerRef}
-          contentEditable
-          suppressContentEditableWarning
-          className="text-sm font-bold outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded px-2 py-1 -mx-2 -my-1 min-w-[200px] flex-1"
-          onBlur={(e) => {
-            const newTitle = e.currentTarget.textContent || section.title
-            if (newTitle.trim() !== section.title) {
-              onUpdate(newTitle.trim() || section.title)
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              e.currentTarget.blur()
-            }
-          }}
-        />
-      ) : (
-        <h2 className="text-sm font-bold">{section.title}</h2>
-      )}
-      {isEditMode && (
-        <div className="relative group flex-shrink-0">
-          <button className="text-xs px-3 py-1.5 bg-white/20 rounded hover:bg-white/30 transition-colors flex items-center gap-1">
-            <Plus className="w-3 h-3" />
-            Add Block
-          </button>
-          <div className="absolute right-0 top-full mt-1 w-32 bg-white text-slate-900 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-10">
-            {(["text", "chart", "table", "timeline", "bar-chart"] as const).map((type) => (
-              <button
-                key={type}
-                onClick={() => onAddBlock(type)}
-                className="w-full text-left px-3 py-2 text-xs hover:bg-slate-100 first:rounded-t-lg last:rounded-b-lg capitalize"
-              >
-                {type === "bar-chart" ? "Bar Chart" : type.charAt(0).toUpperCase() + type.slice(1)}
-              </button>
-            ))}
-          </div>
+    <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-6 py-4 rounded-xl shadow-lg border border-slate-700/50 overflow-hidden group">
+      {/* Animated background accent */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Decorative corner accent */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-transparent rounded-bl-full blur-2xl" />
+      
+      <div className="relative flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 flex-1">
+          <Sparkles className="w-5 h-5 text-blue-400" />
+          {isEditMode ? (
+            <h2
+              ref={headerRef}
+              contentEditable
+              suppressContentEditableWarning
+              className="text-lg font-bold outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900 rounded-lg px-3 py-1.5 -mx-3 -my-1.5 min-w-[200px] flex-1 bg-white/5 focus:bg-white/10 transition-all"
+              onBlur={(e) => {
+                const newTitle = e.currentTarget.textContent || section.title
+                if (newTitle.trim() !== section.title) {
+                  onUpdate(newTitle.trim() || section.title)
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  e.currentTarget.blur()
+                }
+              }}
+            />
+          ) : (
+            <h2 className="text-lg font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+              {section.title}
+            </h2>
+          )}
         </div>
-      )}
+        
+        {isEditMode && (
+          <div className="relative group/menu flex-shrink-0">
+            <button className="text-sm px-4 py-2 bg-gradient-to-r from-blue-500/20 to-blue-600/20 backdrop-blur-sm rounded-lg hover:from-blue-500/30 hover:to-blue-600/30 border border-blue-400/30 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-blue-500/20 hover:scale-105">
+              <Plus className="w-4 h-4" />
+              <span className="font-medium">Add Block</span>
+            </button>
+            <div className="absolute right-0 top-full mt-2 w-40 bg-white text-slate-900 rounded-xl shadow-2xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-200 z-10 overflow-hidden border border-slate-200">
+              {(["text", "chart", "table", "timeline", "bar-chart"] as const).map((type, idx) => (
+                <button
+                  key={type}
+                  onClick={() => onAddBlock(type)}
+                  className="w-full text-left px-4 py-3 text-sm hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all capitalize font-medium flex items-center gap-2 group/item"
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                  {type === "bar-chart" ? "Bar Chart" : type.charAt(0).toUpperCase() + type.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -212,9 +228,13 @@ export default function MemoContent({ isEditMode, sections, onSectionsChange }: 
   }
 
   return (
-    <div className="bg-white p-8 space-y-8 min-h-screen">
-      {sections.map((section) => (
-        <div key={section.id} className="space-y-4">
+    <div className="bg-gradient-to-b from-white to-slate-50 p-8 space-y-8 min-h-screen">
+      {sections.map((section, idx) => (
+        <div 
+          key={section.id} 
+          className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500"
+          style={{ animationDelay: `${idx * 100}ms` }}
+        >
           {/* Section Header */}
           <EditableSectionHeader
             section={section}
@@ -224,9 +244,15 @@ export default function MemoContent({ isEditMode, sections, onSectionsChange }: 
           />
 
           {/* Content Blocks */}
-          <div className="space-y-4 bg-slate-50 p-6 rounded-lg border border-slate-200">
+          <div className="space-y-5 bg-gradient-to-br from-white to-slate-50 p-6 rounded-xl border border-slate-200/80 shadow-lg hover:shadow-xl transition-shadow duration-300">
             {section.blocks.length === 0 ? (
-              <div className="text-center py-8 text-slate-500 text-sm">No content blocks added yet</div>
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Plus className="w-8 h-8 text-slate-400" />
+                </div>
+                <p className="text-slate-500 text-sm font-medium">No content blocks added yet</p>
+                <p className="text-slate-400 text-xs mt-1">Click "Add Block" to get started</p>
+              </div>
             ) : (
               section.blocks.map((block) => renderBlock(block, section.id))
             )}
@@ -238,10 +264,15 @@ export default function MemoContent({ isEditMode, sections, onSectionsChange }: 
       {isEditMode && (
         <button
           onClick={addSection}
-          className="w-full py-4 border-2 border-dashed border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
+          className="w-full py-6 border-2 border-dashed border-slate-300 rounded-xl text-slate-600 hover:border-blue-400 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 transition-all duration-300 flex items-center justify-center gap-3 group relative overflow-hidden"
         >
-          <Plus className="w-5 h-5" />
-          Add Section
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/5 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="relative flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <Plus className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-semibold">Add New Section</span>
+          </div>
         </button>
       )}
     </div>
