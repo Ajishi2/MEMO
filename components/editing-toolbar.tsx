@@ -1,3 +1,4 @@
+
 "use client"
 
 import type React from "react"
@@ -25,74 +26,79 @@ interface EditingToolbarProps {
   onDelete?: () => void
   onAddSection?: () => void
   onAddBlock?: () => void
-  contentEditableRef: React.RefObject<HTMLDivElement>
+  contentEditableRef: React.RefObject<HTMLDivElement | null>
   onCommand?: (command: string, value?: string) => void
 }
 
-const TEXT_COLORS = [
-  "#000000",
-  "#404040",
-  "#606060",
-  "#808080",
-  "#A0A0A0",
-  "#C0C0C0",
-  "#E0E0E0",
-  "#FFFFFF",
-  "#FF0000",
-  "#FF6B6B",
-  "#FFA5A5",
-  "#FFE5E5",
-  "#FFA500",
-  "#FFD580",
-  "#FFF3CD",
-  "#FFFF00",
-  "#FFFFCC",
-  "#00FF00",
-  "#80FF80",
-  "#E5FFE5",
-  "#00FFFF",
-  "#80FFFF",
-  "#E5FFFF",
-  "#0000FF",
-  "#6B6BFF",
-  "#A5A5FF",
-  "#E5E5FF",
-  "#800080",
-  "#FF80FF",
-  "#FFE5FF",
+// Theme Colors - MS Word style (10 colors)
+const THEME_COLORS = [
+  "#FFFFFF", // White
+  "#000000", // Black
+  "#E7E6E6", // Light Gray
+  "#44546A", // Dark Blue
+  "#4472C4", // Blue
+  "#ED7D31", // Orange
+  "#A5A5A5", // Gray
+  "#FFC000", // Yellow
+  "#5B9BD5", // Light Blue
+  "#70AD47", // Green
 ]
 
+// Theme Color Tints - arranged in columns (5 tints per color)
+const THEME_TINTS = [
+  // Column 1: White tints
+  ["#FFFFFF", "#F2F2F2", "#D9D9D9", "#BFBFBF", "#A6A6A6"],
+  // Column 2: Black tints
+  ["#000000", "#7F7F7F", "#595959", "#3F3F3F", "#262626"],
+  // Column 3: Light Gray tints
+  ["#E7E6E6", "#D0CECE", "#AEABAB", "#757171", "#3A3838"],
+  // Column 4: Dark Blue tints
+  ["#44546A", "#D6DCE5", "#ADBACA", "#8497B0", "#323E4F"],
+  // Column 5: Blue tints
+  ["#4472C4", "#D9E2F3", "#B4C7E7", "#8EAADB", "#2F5597"],
+  // Column 6: Orange tints
+  ["#ED7D31", "#FCE5D4", "#F8CBAD", "#F4B183", "#C65911"],
+  // Column 7: Gray tints
+  ["#A5A5A5", "#EDEDED", "#DBDBDB", "#C9C9C9", "#7B7B7B"],
+  // Column 8: Yellow tints
+  ["#FFC000", "#FFF2CC", "#FFE699", "#FFD966", "#BF9000"],
+  // Column 9: Light Blue tints
+  ["#5B9BD5", "#DDEBF7", "#BDD7EE", "#9BC2E6", "#2E75B6"],
+  // Column 10: Green tints
+  ["#70AD47", "#E2EFDA", "#C5E0B4", "#A8D08D", "#548235"],
+]
+
+// Standard Colors - MS Word style (10 colors in a row)
+const STANDARD_COLORS = [
+  "#C00000", // Dark Red
+  "#FF0000", // Red
+  "#FFC000", // Orange
+  "#FFFF00", // Yellow
+  "#92D050", // Light Green
+  "#00B050", // Green
+  "#00B0F0", // Light Blue
+  "#0070C0", // Blue
+  "#002060", // Dark Blue
+  "#7030A0", // Purple
+]
+
+// Highlight Colors - MS Word style (common highlight colors)
 const HIGHLIGHT_COLORS = [
-  "#FFFF00",
-  "#FF6B6B",
-  "#FFDAB9",
-  "#FFD580",
-  "#FFFF99",
-  "#BFEF45",
-  "#00FF00",
-  "#80FF80",
-  "#C6E0B4",
-  "#80FFFF",
-  "#B4D7F1",
-  "#9DC3E6",
-  "#B4C7E7",
-  "#D5A6BD",
-  "#FFE5FF",
-  "#F4CCCC",
-  "#F8CBAD",
-  "#FCE5CD",
-  "#FFF2CC",
-  "#C9DAF8",
-  "#CFE2F3",
-  "#D9D2E9",
-  "#EBD6F1",
-  "#E2EFDA",
-  "#FCE5CD",
-  "#E2EFDA",
-  "#DDEBF7",
-  "#FFF2CC",
-  "#DDEBF7",
-  "#E2EFDA",
+  "#FFFF00", // Yellow
+  "#00FF00", // Bright Green
+  "#00FFFF", // Cyan
+  "#FF00FF", // Magenta
+  "#0000FF", // Blue
+  "#FF0000", // Red
+  "#00008B", // Dark Blue
+  "#008B8B", // Dark Cyan
+  "#006400", // Dark Green
+  "#800080", // Purple
+  "#8B0000", // Dark Red
+  "#FF8C00", // Dark Orange
+  "#FFD700", // Gold
+  "#808080", // Gray
+  "#C0C0C0", // Silver
 ]
 
 export default function EditingToolbar({
@@ -110,18 +116,30 @@ export default function EditingToolbar({
   const [showHighlightPicker, setShowHighlightPicker] = useState(false)
   const [showLineSpacingMenu, setShowLineSpacingMenu] = useState(false)
   const [alignment, setAlignment] = useState("left")
+  const [recentColors, setRecentColors] = useState<string[]>([])
   const colorPickerRef = useRef<HTMLDivElement>(null)
   const highlightPickerRef = useRef<HTMLDivElement>(null)
   const lineSpacingRef = useRef<HTMLDivElement>(null)
 
   const fontFamilies = ["Inter", "Georgia", "Times New Roman", "Courier New", "Verdana", "Arial"]
 
+  // Get the actual contentEditable element
+  const getContentEditable = useCallback((): HTMLElement | null => {
+    if (!contentEditableRef.current) return null
+    // If the ref itself is contentEditable, return it
+    if (contentEditableRef.current.hasAttribute('contenteditable')) {
+      return contentEditableRef.current
+    }
+    // Otherwise, find the contentEditable element within the ref
+    return contentEditableRef.current.querySelector('[contenteditable="true"]') as HTMLElement
+  }, [contentEditableRef])
+
   // Execute command on contentEditable
   const execCommand = useCallback(
     (command: string, value?: string) => {
-      if (!contentEditableRef.current) return
+      const contentEditable = getContentEditable()
+      if (!contentEditable) return
 
-      const contentEditable = contentEditableRef.current
       contentEditable.focus()
 
       try {
@@ -132,7 +150,7 @@ export default function EditingToolbar({
 
       onCommand?.(command, value)
     },
-    [contentEditableRef, onCommand],
+    [getContentEditable, onCommand],
   )
 
   // Handle block type change (Normal, H1, H2)
@@ -144,8 +162,11 @@ export default function EditingToolbar({
     const range = selection.getRangeAt(0)
     const node: Node | null = range.commonAncestorContainer
 
+    const contentEditable = getContentEditable()
+    const container = contentEditableRef.current
+    
     const findBlockElement = (n: Node | null): HTMLElement | null => {
-      while (n && n !== contentEditableRef.current) {
+      while (n && container && !container.contains(n)) {
         if (n.nodeType === Node.ELEMENT_NODE) {
           const element = n as HTMLElement
           if (["H1", "H2", "H3", "P", "DIV", "BLOCKQUOTE", "PRE"].includes(element.tagName)) {
@@ -227,8 +248,9 @@ export default function EditingToolbar({
       }
     }
 
-    if (contentEditableRef.current) {
-      contentEditableRef.current.focus()
+    const contentEditable = getContentEditable()
+    if (contentEditable) {
+      contentEditable.focus()
     }
   }
 
@@ -244,8 +266,11 @@ export default function EditingToolbar({
 
     const node: Node | null = selection.getRangeAt(0).commonAncestorContainer
 
+    const contentEditable = getContentEditable()
+    const container = contentEditableRef.current
+    
     const findBlockElement = (n: Node | null): HTMLElement | null => {
-      while (n && n !== contentEditableRef.current) {
+      while (n && container && !container.contains(n)) {
         if (n.nodeType === Node.ELEMENT_NODE) {
           const element = n as HTMLElement
           const display = window.getComputedStyle(element).display
@@ -255,12 +280,15 @@ export default function EditingToolbar({
         }
         n = n.parentNode
       }
-      return contentEditableRef.current as HTMLElement
+      return contentEditable
     }
 
     const blockElement = findBlockElement(node)
     if (blockElement) {
       blockElement.style.textAlign = nextAlignment
+      if (contentEditable) {
+        contentEditable.focus()
+      }
     }
   }
 
@@ -272,8 +300,11 @@ export default function EditingToolbar({
 
     const node: Node | null = selection.getRangeAt(0).commonAncestorContainer
 
+    const contentEditable = getContentEditable()
+    const container = contentEditableRef.current
+    
     const findBlockElement = (n: Node | null): HTMLElement | null => {
-      while (n && n !== contentEditableRef.current) {
+      while (n && container && !container.contains(n)) {
         if (n.nodeType === Node.ELEMENT_NODE) {
           const element = n as HTMLElement
           const display = window.getComputedStyle(element).display
@@ -283,18 +314,30 @@ export default function EditingToolbar({
         }
         n = n.parentNode
       }
-      return contentEditableRef.current as HTMLElement
+      return contentEditable
     }
 
     const blockElement = findBlockElement(node)
     if (blockElement) {
       blockElement.style.lineHeight = String(value)
+      if (contentEditable) {
+        contentEditable.focus()
+      }
     }
   }
 
   // Handle text color
   const handleTextColor = (color: string) => {
     setShowColorPicker(false)
+    
+    // Add to recent colors (max 10)
+    if (color !== "transparent") {
+      setRecentColors(prev => {
+        const filtered = prev.filter(c => c !== color)
+        return [color, ...filtered].slice(0, 10)
+      })
+    }
+    
     const selection = window.getSelection()
     if (!selection || selection.rangeCount === 0) return
 
@@ -302,7 +345,11 @@ export default function EditingToolbar({
 
     if (!range.collapsed) {
       const span = document.createElement("span")
-      span.style.color = color
+      if (color === "transparent") {
+        span.style.color = ""
+      } else {
+        span.style.color = color
+      }
       try {
         range.surroundContents(span)
       } catch (e) {
@@ -325,7 +372,11 @@ export default function EditingToolbar({
 
     if (!range.collapsed) {
       const span = document.createElement("span")
-      span.style.backgroundColor = color
+      if (color === "transparent") {
+        span.style.backgroundColor = ""
+      } else {
+        span.style.backgroundColor = color
+      }
       try {
         range.surroundContents(span)
       } catch (e) {
@@ -334,7 +385,11 @@ export default function EditingToolbar({
         range.insertNode(span)
       }
     } else {
-      execCommand("backColor", color)
+      if (color === "transparent") {
+        execCommand("backColor", "transparent")
+      } else {
+        execCommand("backColor", color)
+      }
     }
   }
 
@@ -439,8 +494,8 @@ export default function EditingToolbar({
         title="Bold (Ctrl+B)"
         onMouseDown={(e) => e.preventDefault()}
       >
-            <Bold className="w-4 h-4" />
-          </button>
+        <Bold className="w-4 h-4" />
+      </button>
 
       <button
         className={buttonClass}
@@ -448,8 +503,8 @@ export default function EditingToolbar({
         title="Italic (Ctrl+I)"
         onMouseDown={(e) => e.preventDefault()}
       >
-            <Italic className="w-4 h-4" />
-          </button>
+        <Italic className="w-4 h-4" />
+      </button>
 
       <button
         className={buttonClass}
@@ -457,8 +512,8 @@ export default function EditingToolbar({
         title="Underline (Ctrl+U)"
         onMouseDown={(e) => e.preventDefault()}
       >
-            <Underline className="w-4 h-4" />
-          </button>
+        <Underline className="w-4 h-4" />
+      </button>
 
       <button
         className={buttonClass}
@@ -466,8 +521,8 @@ export default function EditingToolbar({
         title="Strikethrough"
         onMouseDown={(e) => e.preventDefault()}
       >
-            <Strikethrough className="w-4 h-4" />
-          </button>
+        <Strikethrough className="w-4 h-4" />
+      </button>
 
       {/* Separator */}
       <div className="w-px h-6 bg-slate-300 mx-0.5" />
@@ -483,17 +538,106 @@ export default function EditingToolbar({
           <Type className="w-4 h-4" />
         </button>
         {showColorPicker && (
-          <div className="absolute top-full mt-2 left-0 bg-white border border-slate-300 rounded-lg shadow-2xl p-3 z-50 grid grid-cols-5 gap-2">
-            {TEXT_COLORS.map((color) => (
-              <button
-                key={color}
-                className="w-6 h-6 rounded border border-slate-300 hover:scale-110 transition hover:shadow-md flex-shrink-0"
-                style={{ backgroundColor: color }}
-                onClick={() => handleTextColor(color)}
-                onMouseDown={(e) => e.preventDefault()}
-                title={color}
-              />
-            ))}
+          <div className="absolute top-full mt-2 left-0 bg-white border border-slate-300 rounded-lg shadow-2xl p-3 z-50 w-72">
+            {/* Recent Colors */}
+            {recentColors.length > 0 && (
+              <div className="mb-3">
+                <p className="text-xs font-medium text-slate-600 mb-2">Recent Colors</p>
+                <div className="flex gap-1">
+                  {recentColors.map((color, idx) => (
+                    <button
+                      key={`recent-${idx}`}
+                      className="w-5 h-5 rounded border border-slate-300 hover:scale-110 transition hover:shadow-md flex-shrink-0"
+                      style={{ backgroundColor: color }}
+                      onClick={() => handleTextColor(color)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      title={color}
+                    />
+                  ))}
+                </div>
+                <div className="h-px bg-slate-200 my-3" />
+              </div>
+            )}
+
+            {/* Theme Colors */}
+            <div className="mb-3">
+              <p className="text-xs font-medium text-slate-600 mb-2">Theme Colors</p>
+              <div className="flex gap-1">
+                {THEME_COLORS.map((color) => (
+                  <button
+                    key={color}
+                    className="w-5 h-5 rounded border border-slate-300 hover:scale-110 transition hover:shadow-md flex-shrink-0"
+                    style={{ backgroundColor: color }}
+                    onClick={() => handleTextColor(color)}
+                    onMouseDown={(e) => e.preventDefault()}
+                    title={color}
+                  />
+                ))}
+              </div>
+              {/* Theme Tints - vertical columns */}
+              <div className="flex gap-1 mt-1">
+                {THEME_TINTS.map((tintColumn, colIdx) => (
+                  <div key={colIdx} className="flex flex-col gap-1">
+                    {tintColumn.map((color, rowIdx) => (
+                      <button
+                        key={`${colIdx}-${rowIdx}`}
+                        className="w-5 h-5 rounded border border-slate-200 hover:scale-110 transition hover:shadow-md flex-shrink-0"
+                        style={{ backgroundColor: color }}
+                        onClick={() => handleTextColor(color)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Separator */}
+            <div className="h-px bg-slate-200 my-3" />
+
+            {/* Standard Colors */}
+            <div className="mb-3">
+              <p className="text-xs font-medium text-slate-600 mb-2">Standard Colors</p>
+              <div className="flex gap-1">
+                {STANDARD_COLORS.map((color) => (
+                  <button
+                    key={color}
+                    className="w-5 h-5 rounded border border-slate-300 hover:scale-110 transition hover:shadow-md flex-shrink-0"
+                    style={{ backgroundColor: color }}
+                    onClick={() => handleTextColor(color)}
+                    onMouseDown={(e) => e.preventDefault()}
+                    title={color}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Separator */}
+            <div className="h-px bg-slate-200 my-3" />
+
+            {/* No Color option */}
+            <button
+              className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-50 rounded transition text-sm mb-2"
+              onClick={() => handleTextColor("transparent")}
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <div className="w-5 h-5 border border-slate-400 rounded-sm relative bg-white">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-6 h-0.5 bg-red-500 rotate-45 origin-center" />
+                </div>
+              </div>
+              <span className="text-slate-700 text-sm">No Color</span>
+            </button>
+
+            {/* More Colors */}
+            <button
+              className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-50 rounded transition text-sm"
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <div className="w-5 h-5 bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500 rounded-sm border border-slate-300" />
+              <span className="text-slate-700 text-sm">More Colors...</span>
+            </button>
           </div>
         )}
       </div>
@@ -507,19 +651,51 @@ export default function EditingToolbar({
           onMouseDown={(e) => e.preventDefault()}
         >
           <Highlighter className="w-4 h-4" />
-          </button>
+        </button>
         {showHighlightPicker && (
-          <div className="absolute top-full mt-2 left-0 bg-white border border-slate-300 rounded-lg shadow-2xl p-3 z-50 grid grid-cols-5 gap-2">
-            {HIGHLIGHT_COLORS.map((color) => (
-              <button
-                key={color}
-                className="w-6 h-6 rounded border border-slate-300 hover:scale-110 transition hover:shadow-md flex-shrink-0"
-                style={{ backgroundColor: color }}
-                onClick={() => handleHighlightColor(color)}
-                onMouseDown={(e) => e.preventDefault()}
-                title={color}
-              />
-            ))}
+          <div className="absolute top-full mt-2 left-0 bg-white border border-slate-300 rounded-lg shadow-2xl p-3 z-50 w-72">
+            {/* No Color option */}
+            <button
+              className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-50 rounded transition text-sm mb-3"
+              onClick={() => handleHighlightColor("transparent")}
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <div className="w-5 h-5 border border-slate-400 rounded-sm relative bg-white">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-6 h-0.5 bg-red-500 rotate-45 origin-center" />
+                </div>
+              </div>
+              <span className="text-slate-700 text-sm">No Color</span>
+            </button>
+
+            {/* Separator */}
+            <div className="h-px bg-slate-200 mb-3" />
+
+            {/* Highlight Colors Grid */}
+            <div className="grid grid-cols-5 gap-1.5">
+              {HIGHLIGHT_COLORS.map((color) => (
+                <button
+                  key={color}
+                  className="w-10 h-7 rounded border border-slate-300 hover:scale-105 transition hover:shadow-md"
+                  style={{ backgroundColor: color }}
+                  onClick={() => handleHighlightColor(color)}
+                  onMouseDown={(e) => e.preventDefault()}
+                  title={color}
+                />
+              ))}
+            </div>
+
+            {/* Separator */}
+            <div className="h-px bg-slate-200 my-3" />
+
+            {/* More Colors */}
+            <button
+              className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-50 rounded transition text-sm"
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <div className="w-5 h-5 bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500 rounded-sm border border-slate-300" />
+              <span className="text-slate-700 text-sm">More Colors...</span>
+            </button>
           </div>
         )}
       </div>
@@ -538,7 +714,7 @@ export default function EditingToolbar({
         {alignment === "center" && <AlignCenter className="w-4 h-4" />}
         {alignment === "right" && <AlignRight className="w-4 h-4" />}
         {alignment === "justify" && <AlignJustify className="w-4 h-4" />}
-          </button>
+      </button>
 
       {/* Line spacing menu */}
       <div className="relative" ref={lineSpacingRef}>
@@ -553,7 +729,7 @@ export default function EditingToolbar({
             <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="2" />
             <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" strokeWidth="2" />
           </svg>
-          </button>
+        </button>
         {showLineSpacingMenu && (
           <div className="absolute top-full mt-1 left-0 bg-white border border-slate-300 rounded-lg shadow-lg p-1 z-50 whitespace-nowrap">
             {[
@@ -569,11 +745,15 @@ export default function EditingToolbar({
                 onMouseDown={(e) => e.preventDefault()}
               >
                 {option.label}
-          </button>
+              </button>
             ))}
           </div>
         )}
       </div>
+
+    
+
+    
 
       {/* Separator */}
       {(onAddSection || onAddBlock) && <div className="w-px h-6 bg-slate-300 mx-0.5" />}
